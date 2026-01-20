@@ -41,7 +41,19 @@ The server will start on `http://localhost:8080`
 
 ## Kubernetes Deployment
 
-### Build Docker Image
+### Pre-built Docker Image
+
+A pre-built multi-architecture Docker image is available on DockerHub:
+
+```bash
+docker pull aliok/mcp-server-sse:latest
+```
+
+The deployment is already configured to use this image.
+
+### Build Docker Image (Optional)
+
+If you want to build your own image:
 
 ```bash
 cd sample-mcp-server-sse
@@ -88,6 +100,30 @@ kubectl get svc mcp-server-sse
 ```
 
 ### Access the Service
+
+#### Using kubectl proxy (for remote clusters)
+
+For remote Kubernetes clusters, use `kubectl proxy` to access the service:
+
+```bash
+# Start kubectl proxy (this will run in the foreground)
+kubectl proxy --port=8001
+```
+
+The service will be available at:
+```
+http://localhost:8001/api/v1/namespaces/default/services/mcp-server-sse:http/proxy/
+```
+
+For the SSE endpoint specifically:
+```
+http://localhost:8001/api/v1/namespaces/default/services/mcp-server-sse:http/proxy/sse
+```
+
+For the health endpoint:
+```
+http://localhost:8001/api/v1/namespaces/default/services/mcp-server-sse:http/proxy/health
+```
 
 #### Port Forward (for testing)
 
@@ -156,11 +192,14 @@ npx @modelcontextprotocol/inspector
 
 ### Running the Inspector
 
-1. Start your MCP server:
+1. Start your MCP server and make it accessible:
 
 ```bash
 # Local development
 ./mcp-server
+
+# Or with kubectl proxy (for remote clusters)
+kubectl proxy --port=8001
 
 # Or with Kubernetes port-forward
 kubectl port-forward svc/mcp-server-sse 8080:80
@@ -169,6 +208,13 @@ kubectl port-forward svc/mcp-server-sse 8080:80
 2. In a new terminal, launch the inspector with your server's SSE endpoint:
 
 ```bash
+# For local development
+npx @modelcontextprotocol/inspector http://localhost:8080/sse
+
+# For kubectl proxy (remote clusters)
+npx @modelcontextprotocol/inspector http://localhost:8001/api/v1/namespaces/default/services/mcp-server-sse:http/proxy/sse
+
+# For port-forward
 npx @modelcontextprotocol/inspector http://localhost:8080/sse
 ```
 
