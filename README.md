@@ -10,6 +10,12 @@ This MCP server provides 3 tools:
 2. **generate_uuid** - Generates a random UUID (v4)
 3. **reverse_string** - Reverses a given string
 
+## Requirements
+
+- Go 1.23 or later
+- Docker (for containerization)
+- Kubernetes cluster (for deployment)
+
 ## Architecture
 
 Built with the official MCP Go SDK (`github.com/modelcontextprotocol/go-sdk`), this server:
@@ -41,50 +47,30 @@ The server will start on `http://localhost:8080`
 
 ## Kubernetes Deployment
 
-### Pre-built Docker Image
-
-A pre-built multi-architecture Docker image is available on DockerHub:
-
-```bash
-docker pull aliok/mcp-server-sse:latest
-```
-
-The deployment is already configured to use this image.
-
-### Build Docker Image (Optional)
-
-If you want to build your own image:
+### Build and Push Docker Image
 
 ```bash
 cd sample-mcp-server-sse
-docker build -t mcp-server-sse:latest .
+
+# Build for linux/amd64 architecture
+docker build -t aliok/mcp-server-sse:latest .
+
+# Push to Docker Hub (or your registry)
+docker push aliok/mcp-server-sse:latest
 ```
 
-### Push to Container Registry (Optional)
-
-If using a remote Kubernetes cluster, push the image to your container registry:
-
-```bash
-# Tag for your registry
-docker tag mcp-server-sse:latest your-registry.com/mcp-server-sse:latest
-
-# Push to registry
-docker push your-registry.com/mcp-server-sse:latest
-```
-
-Update the image in `k8s/deployment.yaml` to match your registry.
+**Note**: Replace `aliok` with your Docker Hub username or registry path. The Dockerfile is configured to build for linux/amd64 architecture.
 
 ### Deploy to Kubernetes
 
-Using kubectl:
+Deploy using kubectl:
 
 ```bash
 # Apply manifests
 kubectl apply -f k8s/
-
-# Or using kustomize
-kubectl apply -k k8s/
 ```
+
+**Note**: The deployment uses `aliok/mcp-server-sse:latest`. Update `k8s/deployment.yaml` if using a different registry.
 
 ### Verify Deployment
 
